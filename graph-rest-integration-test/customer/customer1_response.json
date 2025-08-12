@@ -1,0 +1,7 @@
+{
+  "customerId": "string",
+  "id": "string",
+  "properties": {
+    "additionalProp1": {}
+  }
+}
