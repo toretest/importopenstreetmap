@@ -1,0 +1,114 @@
+{
+  "customerId": 1,
+  "payload": {
+    "orgnr": "121212112121",
+    "name": "Super AS",
+    "projects": [
+      {
+        "name": "Project1",
+        "description": "Route project for customer data"
+      },
+      {
+        "projectId": 2,
+        "name": "Project 2",
+        "description": "Data expansion project",
+        "startDate": "2025-03-01",
+        "endDate": null,
+        "tags": ["data", "expansion"]
+      }
+    ],
+    "datasets": [
+      {
+        "datasetId": 1,
+        "name": "Dataset 1",
+        "projectId": 1,
+        "schema": {
+          "fields": [
+            { "name": "id", "type": "string", "nullable": false },
+            { "name": "created_at", "type": "timestamp", "nullable": false },
+            { "name": "amount", "type": "number", "nullable": true }
+          ]
+        },
+        "storage": {
+          "type": "s3",
+          "bucket": "<bucket-name>",
+          "path": "customers/1/datasets/dataset1/"
+        }
+      },
+      {
+        "datasetId": 2,
+        "name": "Dataset 2",
+        "projectId": 2,
+        "schema": {
+          "fields": [
+            { "name": "user_id", "type": "string", "nullable": false },
+            { "name": "event", "type": "string", "nullable": false },
+            { "name": "event_time", "type": "timestamp", "nullable": false }
+          ]
+        },
+        "storage": {
+          "type": "s3",
+          "bucket": "<bucket-name>",
+          "path": "customers/1/datasets/dataset2/"
+        }
+      }
+    ],
+    "routes": [
+      {
+        "routeId": 1,
+        "name": "Ingestion Route",
+        "source": {
+          "type": "http",
+          "endpoint": "<source-endpoint>",
+          "auth": {
+            "type": "bearer",
+            "token": "<token>"
+          }
+        },
+        "destination": {
+          "type": "dataset",
+          "datasetId": 1,
+          "mode": "append"
+        },
+        "transformations": [
+          { "type": "filter", "expr": "amount != null" },
+          { "type": "map", "expr": "amount = round(amount, 2)" }
+        ],
+        "enabled": true
+      },
+      {
+        "routeId": 2,
+        "name": "Events Route",
+        "source": {
+          "type": "kafka",
+          "bootstrapServers": "<kafka:9092>",
+          "topic": "customer-events"
+        },
+        "destination": {
+          "type": "dataset",
+          "datasetId": 2,
+          "mode": "append"
+        },
+        "transformations": [
+          { "type": "parse_timestamp", "field": "event_time" }
+        ],
+        "enabled": true
+      }
+    ],
+    "zones": [
+      {
+        "zoneId": 1,
+        "name": "EU-West Secure Zone",
+        "region": "eu-west-1",
+        "network": {
+          "vpcId": "<vpc-xxxxxx>",
+          "subnets": ["<subnet-a>", "<subnet-b>"]
+        },
+        "policies": {
+          "encryption": "AES256",
+          "retentionDays": 365
+        }
+      }
+    ]
+  }
+}
