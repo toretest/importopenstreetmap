@@ -37,7 +37,7 @@ class CustomerApiClient:
         self.close()
 
     def create_or_update(self, customer_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
-        url = f"{self.base_url}/{customer_id}/customerid"
+        url = f"{self.base_url}/{customer_id}/customerId"
         try:
             resp = self._client.post(url, json=payload)
             resp.raise_for_status()
