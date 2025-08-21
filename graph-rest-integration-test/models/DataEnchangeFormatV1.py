@@ -6,7 +6,7 @@ from enum import Enum
 from pydantic import BaseModel, Field, RootModel, ConfigDict
 
 
-# ---------- Dataset type Enum (optional, can be kept for general use) ----------
+# ---------- Dataset type Enum (optional) ----------
 class DatasetType(str, Enum):
     ROUTE = "route"
     ZONE = "zone"
@@ -23,8 +23,7 @@ class Location(BaseModel):
 
 class LocationMap(RootModel[dict[str, Location]]):
     """Map from arbitrary location key to Location."""
-    # Note: In Pydantic v2, don't set model_config on RootModel subclasses.
-    # Also don't redefine 'root' attribute; generics carry the root type.
+    # For Pydantic v2, don't set model_config on RootModel subclasses
     pass
 
 
@@ -75,6 +74,8 @@ class Project(BaseModel):
 
 class Payload(BaseModel):
     model_config = ConfigDict(extra='forbid')
+    # customerId moved into payload per new JSON structure
+    customerId: int
     organisation_nr: str
     name: str
     projects: List[Project]
@@ -83,6 +84,5 @@ class Payload(BaseModel):
 class RootModel_(BaseModel):
     """Top-level document."""
     model_config = ConfigDict(extra='forbid')
-    customerId: int
     SchemaVersion: str
     payload: Payload

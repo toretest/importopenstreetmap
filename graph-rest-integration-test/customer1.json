@@ -1,7 +1,7 @@
 {
-  "customerId": 1,
   "SchemaVersion": "1.0",
   "payload": {
+    "customerId": 1,
     "organisation_nr": "121212112121",
     "name": "Super AS",
     "projects": [

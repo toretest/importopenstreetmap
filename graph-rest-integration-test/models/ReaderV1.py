@@ -1,10 +1,12 @@
+# python
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Union
+from typing import Union, Any, Dict
 from pydantic import ValidationError
 
 from .DataEnchangeFormatV1 import RootModel_
+
 
 def load_customer_document(file_path: Union[str, Path]) -> RootModel_:
     """
@@ -35,3 +37,50 @@ def load_customer_document(file_path: Union[str, Path]) -> RootModel_:
         raise ValueError(
             f"Failed to parse JSON in file: {path}. {e}"
         ) from e
+
+
+def parse_customer_document_json(json_text: str) -> RootModel_:
+    """
+    Parse from a JSON string into RootModel_ with validation.
+
+    :raises ValueError: if JSON is invalid or fails schema validation
+    """
+    try:
+        return RootModel_.model_validate_json(json_text)
+    except ValidationError as ve:
+        raise ValueError(f"Schema validation failed\n{ve}") from ve
+    except Exception as e:
+        raise ValueError(f"Failed to parse JSON text. {e}") from e
+
+
+def parse_customer_document_obj(obj: Dict[str, Any]) -> RootModel_:
+    """
+    Parse from an already-loaded Python object (dict) into RootModel_ with validation.
+
+    :raises ValueError: if the object fails schema validation
+    """
+    try:
+        return RootModel_.model_validate(obj)
+    except ValidationError as ve:
+        raise ValueError(f"Schema validation failed\n{ve}") from ve
+
+
+def generate_customer_json_schema() -> Dict[str, Any]:
+    """
+    Generate the JSON Schema for the RootModel_.
+    """
+    return RootModel_.model_json_schema()
+
+
+def write_customer_json_schema(path: Union[str, Path]) -> Path:
+    """
+    Write the JSON Schema to a file (pretty-printed).
+
+    :return: The path written
+    """
+    import json
+
+    schema = generate_customer_json_schema()
+    out = Path(path)
+    out.write_text(json.dumps(schema, indent=2), encoding="utf-8")
+    return out
